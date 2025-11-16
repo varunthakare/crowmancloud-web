@@ -111,11 +111,29 @@ export function useAuth() {
   const isAuthenticated = !!token;
 
   const signOut = async () => {
-    await TokenManager.clearToken();
-    // trigger auth state change for same tab
-    setToken(null);
-    setUser(null);
+    try {
+      await TokenManager.clearToken();
+      // trigger auth state change for same tab
+      setToken(null);
+      setUser(null);
+    } catch (error) {
+      console.error('Error during sign out:', error);
+      // Still clear local state even if API call fails
+      setToken(null);
+      setUser(null);
+    }
   };
 
-  return { isAuthenticated, token, user, signOut, ready, TokenManager };
+  const refreshAuth = async () => {
+    const t = await TokenManager.getToken();
+    setToken(t);
+    if (t) {
+      const payload = decodeJwt(t);
+      setUser({ name: payload?.name ?? null, email: payload?.email ?? null });
+    } else {
+      setUser(null);
+    }
+  };
+
+  return { isAuthenticated, token, user, signOut, refreshAuth, ready, TokenManager };
 }

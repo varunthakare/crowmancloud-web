@@ -205,7 +205,8 @@ export default function SignInPage() {
             throw new Error('Failed to store authentication token securely');
           }
           
-          router.push("/vulnerability");
+          // Force a page reload to ensure auth state is properly updated
+          window.location.href = "/vulnerability";
         } catch (error) {
           console.error('Secure token storage failed:', error);
           throw new Error('Authentication failed. Please try again.');
