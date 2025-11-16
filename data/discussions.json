@@ -1,0 +1,44 @@
+{
+  "categories": [
+    {
+      "id": "announcements",
+      "title": "Announcements",
+      "desc": "Official updates and important notices."
+    },
+    {
+      "id": "qa",
+      "title": "Q&A",
+      "desc": "Ask questions and get help from the community."
+    },
+    {
+      "id": "show-and-tell",
+      "title": "Show & Tell",
+      "desc": "Share what you're building with CrowmanCloud."
+    },
+    {
+      "id": "feedback",
+      "title": "Feedback",
+      "desc": "Suggest features and improvements."
+    }
+  ],
+  "threads": [
+    {
+      "id": "deploy-nextjs",
+      "title": "How do I deploy a Next.js app on CrowmanCloud?",
+      "category": "qa",
+      "replies": 12
+    },
+    {
+      "id": "cli-dx-preview",
+      "title": "Preview: our new CLI DX — feedback welcome",
+      "category": "announcements",
+      "replies": 7
+    },
+    {
+      "id": "log-viewer-api",
+      "title": "I built a log viewer using the API",
+      "category": "show-and-tell",
+      "replies": 4
+    }
+  ]
+}
