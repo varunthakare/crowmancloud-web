@@ -30,6 +30,23 @@ export async function googleAuthWithCredential(credential: string) {
   });
 }
 
+// New Google OAuth endpoints using idToken and separate paths for sign-in and sign-up
+export async function googleSignIn(idToken: string) {
+  return apiFetch("/api/auth/google-signin", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ idToken }),
+  });
+}
+
+export async function googleSignUp(idToken: string) {
+  return apiFetch("/api/auth/google-signup", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ idToken }),
+  });
+}
+
 export async function registerWithEmailPassword(name: string, email: string, password: string) {
   return apiFetch("/api/auth/register", {
     method: "POST",
