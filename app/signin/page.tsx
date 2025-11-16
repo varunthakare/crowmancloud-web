@@ -8,6 +8,7 @@ import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { GoogleLogin } from '@react-oauth/google';
 import { loginWithEmailPassword, googleSignIn, sendOtp, verifyOtp, forgotPassword } from "@/lib/api";
+import { validateEmail, validatePassword, validateOTP, loginRateLimiter, otpRateLimiter } from "@/lib/validation";
 
 export default function SignInPage() {
   const [showEmail, setShowEmail] = useState(false);
@@ -46,11 +47,22 @@ export default function SignInPage() {
 
       const data = await response.json();
 
-      // Store token from backend shape
+      // Store token securely
       const token = data.token || data.access_token;
       if (token) {
-        localStorage.setItem('access_token', token);
-        localStorage.setItem('token_type', data.token_type || 'bearer');
+        // Try to use secure storage first, fallback to localStorage
+        try {
+          await fetch('/api/auth/token', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ token, tokenType: data.token_type || 'bearer' })
+          });
+        } catch (error) {
+          console.warn('Secure token storage failed, using localStorage fallback');
+          localStorage.setItem('access_token', token);
+          localStorage.setItem('token_type', data.token_type || 'bearer');
+        }
       }
       
       // Redirect to vulnerability page
@@ -74,18 +86,39 @@ export default function SignInPage() {
     setLoading(true);
     try {
       if (forgotStep === 'email') {
-        if (!fpEmail) throw new Error('Please enter your email');
-        const res: any = await sendOtp(fpEmail);
+        // Validate email
+        const emailValidation = validateEmail(fpEmail);
+        if (!emailValidation.isValid) {
+          throw new Error(emailValidation.error);
+        }
+        
+        // Check rate limiting
+        if (!otpRateLimiter.isAllowed(emailValidation.sanitized!)) {
+          const remainingTime = Math.ceil(otpRateLimiter.getRemainingTime(emailValidation.sanitized!) / 1000 / 60);
+          throw new Error(`Too many attempts. Please try again in ${remainingTime} minutes.`);
+        }
+        
+        const res: any = await sendOtp(emailValidation.sanitized!);
         if (res?.status !== 'success') throw new Error(res?.message || 'Failed to send OTP');
         setForgotStep('otp');
       } else if (forgotStep === 'otp') {
-        if (!fpOtp) throw new Error('Please enter the OTP');
-        const res: any = await verifyOtp(fpEmail, fpOtp);
+        // Validate OTP
+        const otpValidation = validateOTP(fpOtp);
+        if (!otpValidation.isValid) {
+          throw new Error(otpValidation.error);
+        }
+        
+        const res: any = await verifyOtp(fpEmail, otpValidation.sanitized!);
         if (res?.status !== 'success' || !res?.token) throw new Error(res?.message || 'Failed to verify OTP');
         setFpToken(String(res.token));
         setForgotStep('reset');
       } else if (forgotStep === 'reset') {
-        if (!fpPassword) throw new Error('Please enter a new password');
+        // Validate password
+        const passwordValidation = validatePassword(fpPassword);
+        if (!passwordValidation.isValid) {
+          throw new Error(passwordValidation.error);
+        }
+        
         if (fpPassword !== fpConfirm) throw new Error('Passwords do not match');
         const res: any = await forgotPassword(fpEmail, fpPassword, fpToken);
         if (res?.status !== 'success') throw new Error(res?.message || 'Failed to update password');
@@ -113,7 +146,19 @@ export default function SignInPage() {
     setError(null);
     setLoading(true);
     try {
-      const res = await loginWithEmailPassword(email, password);
+      // Validate email
+      const emailValidation = validateEmail(email);
+      if (!emailValidation.isValid) {
+        throw new Error(emailValidation.error);
+      }
+      
+      // Check rate limiting
+      if (!loginRateLimiter.isAllowed(emailValidation.sanitized!)) {
+        const remainingTime = Math.ceil(loginRateLimiter.getRemainingTime(emailValidation.sanitized!) / 1000 / 60);
+        throw new Error(`Too many login attempts. Please try again in ${remainingTime} minutes.`);
+      }
+      
+      const res = await loginWithEmailPassword(emailValidation.sanitized!, password);
 
       if (!res.ok) {
         // Try to parse JSON error and extract a friendly message
@@ -143,10 +188,20 @@ export default function SignInPage() {
       const accessToken = data.access_token || data.token;
 
       if (accessToken) {
-        // store token for subsequent requests
-        if (typeof window !== "undefined") {
-          localStorage.setItem("access_token", accessToken);
-          localStorage.setItem("token_type", data.token_type || "bearer");
+        // Store token securely
+        try {
+          await fetch('/api/auth/token', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ token: accessToken, tokenType: data.token_type || 'bearer' })
+          });
+        } catch (error) {
+          console.warn('Secure token storage failed, using localStorage fallback');
+          if (typeof window !== "undefined") {
+            localStorage.setItem("access_token", accessToken);
+            localStorage.setItem("token_type", data.token_type || "bearer");
+          }
         }
         router.push("/vulnerability");
       } else {
