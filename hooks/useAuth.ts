@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
 export type AuthUser = {
   name?: string | null;
@@ -30,29 +30,46 @@ const TokenManager = {
         return data.token || null;
       }
     } catch (error) {
-      console.warn('Failed to get token from secure storage, using localStorage fallback');
+      console.warn('Failed to get token from secure storage');
     }
     
-    // Fallback to localStorage for development/backward compatibility
-    return typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
+    return null;
+  },
+
+  // Get token type from httpOnly cookie via API call
+  async getTokenType(): Promise<string> {
+    try {
+      const response = await fetch('/api/auth/token', {
+        method: 'GET',
+        credentials: 'include'
+      });
+      if (response.ok) {
+        const data = await response.json();
+        return data.tokenType || 'Bearer';
+      }
+    } catch (error) {
+      console.warn('Failed to get token type from secure storage');
+    }
+    
+    return 'Bearer';
   },
 
   // Set token securely
   async setToken(token: string, tokenType: string = 'Bearer'): Promise<void> {
     try {
-      await fetch('/api/auth/token', {
+      const response = await fetch('/api/auth/token', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify({ token, tokenType })
       });
-    } catch (error) {
-      console.warn('Failed to set token securely, falling back to localStorage');
-      // Fallback for development
-      if (typeof window !== "undefined") {
-        localStorage.setItem("access_token", token);
-        localStorage.setItem("token_type", tokenType);
+      
+      if (!response.ok) {
+        throw new Error('Failed to store token securely');
       }
+    } catch (error) {
+      console.error('Failed to set token securely:', error);
+      throw error;
     }
   },
 
@@ -65,12 +82,6 @@ const TokenManager = {
       });
     } catch (error) {
       console.warn('Failed to clear token securely');
-    }
-    
-    // Also clear localStorage fallback
-    if (typeof window !== "undefined") {
-      localStorage.removeItem("access_token");
-      localStorage.removeItem("token_type");
     }
   }
 };
@@ -95,39 +106,12 @@ export function useAuth() {
     };
 
     loadToken();
-
-    // Listen for storage changes (fallback for localStorage)
-    const onStorage = (e: StorageEvent) => {
-      if (e.key === "access_token") {
-        const nt = e.newValue;
-        setToken(nt);
-        if (nt) {
-          const p = decodeJwt(nt);
-          setUser({ name: p?.name ?? null, email: p?.email ?? null });
-        } else {
-          setUser(null);
-        }
-      }
-    };
-    
-    if (typeof window !== "undefined") {
-      window.addEventListener("storage", onStorage);
-      return () => window.removeEventListener("storage", onStorage);
-    }
   }, []);
 
   const isAuthenticated = !!token;
 
-  const clearCookie = (name: string) => {
-    try {
-      document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; secure; samesite=strict`;
-    } catch {}
-  };
-
   const signOut = async () => {
     await TokenManager.clearToken();
-    clearCookie("access_token");
-    clearCookie("token_type");
     // trigger auth state change for same tab
     setToken(null);
     setUser(null);

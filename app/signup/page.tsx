@@ -47,29 +47,34 @@ export default function SignUpPage() {
 
       const data = await response.json();
 
-      // Store token securely
+      // Store token securely using httpOnly cookies only
       const token = data.token || data.access_token;
       if (token) {
         try {
-          await fetch('/api/auth/token', {
+          const response = await fetch('/api/auth/token', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
             body: JSON.stringify({ token, tokenType: data.token_type || 'bearer' })
           });
+          
+          if (!response.ok) {
+            throw new Error('Failed to store authentication token securely');
+          }
+          
+          setSuccess("Account created successfully with Google!");
+          
+          // Redirect to vulnerability page
+          const redirectTimer = setTimeout(() => {
+            router.push("/vulnerability");
+          }, 1500);
         } catch (error) {
-          console.warn('Secure token storage failed, using localStorage fallback');
-          localStorage.setItem('access_token', token);
-          localStorage.setItem('token_type', data.token_type || 'bearer');
+          console.error('Secure token storage failed:', error);
+          throw new Error('Account creation failed. Please try again.');
         }
+      } else {
+        throw new Error('No authentication token received');
       }
-      
-      setSuccess("Account created successfully with Google!");
-      
-      // Redirect to vulnerability page
-      setTimeout(() => {
-        router.push("/vulnerability");
-      }, 1500);
     } catch (err: any) {
       setError(err.message || 'Google sign up failed');
     } finally {

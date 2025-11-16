@@ -74,8 +74,8 @@ Protection against abuse with configurable rate limits:
 - No sensitive system information exposed in error responses
 
 ### Token Management
-- Tokens stored in httpOnly cookies when possible
-- Fallback to localStorage for development/compatibility
+- Tokens stored exclusively in httpOnly cookies
+- No localStorage usage for sensitive data
 - Automatic token cleanup on logout
 - Secure cookie attributes (HttpOnly, Secure, SameSite)
 

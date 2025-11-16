@@ -11,7 +11,7 @@ import { useAuth } from "@/hooks/useAuth";
 
 export default function PricingPage() {
   const [isProModalOpen, setIsProModalOpen] = useState(false);
-  const { token } = useAuth();
+  const { token, TokenManager } = useAuth();
 
   const plans = [
     {
@@ -201,7 +201,7 @@ export default function PricingPage() {
       <ProWaitlistModal
         isOpen={isProModalOpen}
         onClose={() => setIsProModalOpen(false)}
-        tokenType={typeof window !== 'undefined' ? (localStorage.getItem('token_type') || 'Bearer') : 'Bearer'}
+        tokenType="Bearer"
       />
     </div>
   );

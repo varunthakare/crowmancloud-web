@@ -12,7 +12,7 @@ import { getUserProfile, updateProfile } from "@/lib/api";
 import LoggedInWaitlistModal from "@/components/LoggedInWaitlistModal";
 
 export default function ProfilePage() {
-  const { isAuthenticated, user, signOut, ready, token } = useAuth();
+  const { isAuthenticated, user, signOut, ready, token, TokenManager } = useAuth();
   const router = useRouter();
   const [profile, setProfile] = useState<{
     name: string;
@@ -48,7 +48,7 @@ export default function ProfilePage() {
       try {
         setLoadingProfile(true);
         setProfileError(null);
-        const tokenType = typeof window !== 'undefined' ? (localStorage.getItem('token_type') || 'Bearer') : 'Bearer';
+        const tokenType = await TokenManager.getTokenType();
         const data: any = await getUserProfile(token, tokenType);
         const details = data?.["user-details"] || {};
         setProfile({
@@ -74,7 +74,7 @@ export default function ProfilePage() {
     if (!token || !profile) return;
     try {
       setSavingProfile(true);
-      const tokenType = typeof window !== 'undefined' ? (localStorage.getItem('token_type') || 'Bearer') : 'Bearer';
+      const tokenType = await TokenManager.getTokenType();
       await updateProfile(token, { role: newRole, name: profile.name }, tokenType);
       setRole(newRole);
       const refreshed: any = await getUserProfile(token, tokenType);
@@ -100,7 +100,7 @@ export default function ProfilePage() {
     try {
       setSavingProfile(true);
       const nextName = editName.trim() || profile.name;
-      const tokenType = typeof window !== 'undefined' ? (localStorage.getItem('token_type') || 'Bearer') : 'Bearer';
+      const tokenType = await TokenManager.getTokenType();
       await updateProfile(token, { name: nextName, role }, tokenType);
       const refreshed: any = await getUserProfile(token, tokenType);
       const d = refreshed?.["user-details"] || {};
@@ -404,7 +404,7 @@ export default function ProfilePage() {
           userName={profile.name}
           userRole={role}
           token={token}
-          tokenType={typeof window !== 'undefined' ? (localStorage.getItem('token_type') || 'Bearer') : 'Bearer'}
+          tokenType="Bearer"
         />
       )}
     </div>

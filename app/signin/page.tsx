@@ -47,26 +47,30 @@ export default function SignInPage() {
 
       const data = await response.json();
 
-      // Store token securely
+      // Store token securely using httpOnly cookies only
       const token = data.token || data.access_token;
       if (token) {
-        // Try to use secure storage first, fallback to localStorage
         try {
-          await fetch('/api/auth/token', {
+          const response = await fetch('/api/auth/token', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
             body: JSON.stringify({ token, tokenType: data.token_type || 'bearer' })
           });
+          
+          if (!response.ok) {
+            throw new Error('Failed to store authentication token securely');
+          }
+          
+          // Redirect to vulnerability page
+          router.push("/vulnerability");
         } catch (error) {
-          console.warn('Secure token storage failed, using localStorage fallback');
-          localStorage.setItem('access_token', token);
-          localStorage.setItem('token_type', data.token_type || 'bearer');
+          console.error('Secure token storage failed:', error);
+          throw new Error('Authentication failed. Please try again.');
         }
+      } else {
+        throw new Error('No authentication token received');
       }
-      
-      // Redirect to vulnerability page
-      router.push("/vulnerability");
     } catch (err: any) {
       setError(err.message || 'Google sign in failed');
     } finally {
@@ -188,22 +192,24 @@ export default function SignInPage() {
       const accessToken = data.access_token || data.token;
 
       if (accessToken) {
-        // Store token securely
+        // Store token securely using httpOnly cookies only
         try {
-          await fetch('/api/auth/token', {
+          const response = await fetch('/api/auth/token', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
             body: JSON.stringify({ token: accessToken, tokenType: data.token_type || 'bearer' })
           });
-        } catch (error) {
-          console.warn('Secure token storage failed, using localStorage fallback');
-          if (typeof window !== "undefined") {
-            localStorage.setItem("access_token", accessToken);
-            localStorage.setItem("token_type", data.token_type || "bearer");
+          
+          if (!response.ok) {
+            throw new Error('Failed to store authentication token securely');
           }
+          
+          router.push("/vulnerability");
+        } catch (error) {
+          console.error('Secure token storage failed:', error);
+          throw new Error('Authentication failed. Please try again.');
         }
-        router.push("/vulnerability");
       } else {
         throw new Error("No access token returned");
       }
