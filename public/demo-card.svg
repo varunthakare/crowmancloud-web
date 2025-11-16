@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Simple demo SVG card with subtle gradient and animated pulse -->
+<svg width="960" height="540" viewBox="0 0 960 540" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Demo card mockup">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0B1020"/>
+      <stop offset="100%" stop-color="#0A0E19"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="80%" r="60%">
+      <stop offset="0%" stop-color="#7C3AED" stop-opacity="0.6"/>
+      <stop offset="45%" stop-color="#7C3AED" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#111827" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#7C3AED"/>
+      <stop offset="100%" stop-color="#3B82F6"/>
+    </linearGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="6" stdDeviation="14" flood-color="#000000" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="960" height="540" fill="url(#bg)"/>
+
+  <!-- Subtle bottom glow -->
+  <ellipse cx="480" cy="420" rx="360" ry="120" fill="url(#glow)">
+    <animate attributeName="opacity" values="0.6;0.85;0.6" dur="6s" repeatCount="indefinite" />
+    <animate attributeName="ry" values="110;120;110" dur="6s" repeatCount="indefinite" />
+  </ellipse>
+
+  <!-- Mock window -->
+  <g filter="url(#shadow)">
+    <rect x="120" y="90" width="720" height="360" rx="18" fill="#0F172A" stroke="rgba(255,255,255,0.08)"/>
+    <!-- Window header -->
+    <rect x="120" y="90" width="720" height="44" rx="18" fill="#0B1225" />
+    <circle cx="150" cy="112" r="6" fill="#EF4444"/>
+    <circle cx="168" cy="112" r="6" fill="#F59E0B"/>
+    <circle cx="186" cy="112" r="6" fill="#10B981"/>
+  </g>
+
+  <!-- Left sidebar -->
+  <rect x="144" y="154" width="160" height="270" rx="12" fill="#0B1225" stroke="rgba(255,255,255,0.06)"/>
+  <rect x="160" y="170" width="128" height="14" rx="7" fill="rgba(255,255,255,0.2)"/>
+  <rect x="160" y="196" width="96" height="10" rx="5" fill="rgba(255,255,255,0.14)"/>
+  <rect x="160" y="216" width="120" height="10" rx="5" fill="rgba(255,255,255,0.14)"/>
+  <rect x="160" y="236" width="88" height="10" rx="5" fill="rgba(255,255,255,0.14)"/>
+
+  <!-- Content title -->
+  <rect x="324" y="162" width="240" height="18" rx="9" fill="url(#accent)"/>
+
+  <!-- Code-like lines -->
+  <g fill="rgba(255,255,255,0.18)">
+    <rect x="324" y="196" width="380" height="10" rx="5"/>
+    <rect x="324" y="214" width="300" height="10" rx="5"/>
+    <rect x="324" y="232" width="340" height="10" rx="5"/>
+    <rect x="324" y="250" width="280" height="10" rx="5"/>
+    <rect x="324" y="268" width="360" height="10" rx="5"/>
+    <rect x="324" y="286" width="200" height="10" rx="5"/>
+  </g>
+
+  <!-- Accent pill -->
+  <rect x="324" y="314" width="160" height="34" rx="17" fill="rgba(124,58,237,0.15)" stroke="rgba(124,58,237,0.45)"/>
+  <text x="404" y="336" text-anchor="middle" font-family="Inter, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif" font-size="14" fill="#EDE9FE">demo action</text>
+
+  <!-- Animated cursor indicator -->
+  <g>
+    <circle cx="560" cy="322" r="6" fill="url(#accent)">
+      <animate attributeName="r" values="6;9;6" dur="1.8s" repeatCount="indefinite" />
+    </circle>
+    <circle cx="560" cy="322" r="16" fill="#7C3AED" opacity="0.12">
+      <animate attributeName="r" values="14;22;14" dur="1.8s" repeatCount="indefinite" />
+      <animate attributeName="opacity" values="0.08;0.2;0.08" dur="1.8s" repeatCount="indefinite" />
+    </circle>
+  </g>
+</svg>
