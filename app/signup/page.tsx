@@ -8,7 +8,7 @@ import Link from "next/link";
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { GoogleLogin } from '@react-oauth/google';
-import { googleAuthWithCredential, sendOtp, verifyOtp, registerWithOtp } from "@/lib/api";
+import { googleSignUp, sendOtp, verifyOtp, registerWithOtp } from "@/lib/api";
 
 export default function SignUpPage() {
   const router = useRouter();
@@ -28,7 +28,9 @@ export default function SignUpPage() {
     setLoading(true);
     setError(null);
     try {
-      const response = await googleAuthWithCredential(credentialResponse.credential);
+      const idToken = credentialResponse?.credential;
+      if (!idToken) throw new Error('Missing Google idToken');
+      const response = await googleSignUp(idToken);
 
       if (!response.ok) {
         let errorMessage = 'Google sign up failed';
@@ -43,10 +45,11 @@ export default function SignUpPage() {
       }
 
       const data = await response.json();
-      
-      // Store tokens if provided in response
-      if (data.access_token) {
-        localStorage.setItem('access_token', data.access_token);
+
+      // Store token from backend shape
+      const token = data.token || data.access_token;
+      if (token) {
+        localStorage.setItem('access_token', token);
         localStorage.setItem('token_type', data.token_type || 'bearer');
       }
       

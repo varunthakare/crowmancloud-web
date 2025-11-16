@@ -7,7 +7,7 @@ import { Github, Mail, ShieldCheck } from "lucide-react";
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { GoogleLogin } from '@react-oauth/google';
-import { loginWithEmailPassword, googleAuthWithCredential, sendOtp, verifyOtp, forgotPassword } from "@/lib/api";
+import { loginWithEmailPassword, googleSignIn, sendOtp, verifyOtp, forgotPassword } from "@/lib/api";
 
 export default function SignInPage() {
   const [showEmail, setShowEmail] = useState(false);
@@ -28,7 +28,9 @@ export default function SignInPage() {
     setLoading(true);
     setError(null);
     try {
-      const response = await googleAuthWithCredential(credentialResponse.credential);
+      const idToken = credentialResponse?.credential;
+      if (!idToken) throw new Error('Missing Google idToken');
+      const response = await googleSignIn(idToken);
 
       if (!response.ok) {
         let errorMessage = 'Google sign in failed';
@@ -43,10 +45,11 @@ export default function SignInPage() {
       }
 
       const data = await response.json();
-      
-      // Store tokens if provided in response
-      if (data.access_token) {
-        localStorage.setItem('access_token', data.access_token);
+
+      // Store token from backend shape
+      const token = data.token || data.access_token;
+      if (token) {
+        localStorage.setItem('access_token', token);
         localStorage.setItem('token_type', data.token_type || 'bearer');
       }
       
