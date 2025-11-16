@@ -8,10 +8,11 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { KeyRound, Eye, EyeOff, Copy, CheckCircle2 } from "lucide-react";
-import { getUserProfile, upgradeToPro, updateProfile } from "@/lib/api";
+import { getUserProfile, updateProfile } from "@/lib/api";
+import LoggedInWaitlistModal from "@/components/LoggedInWaitlistModal";
 
 export default function ProfilePage() {
-  const { isAuthenticated, user, signOut, ready, token } = useAuth();
+  const { isAuthenticated, user, signOut, ready, token, TokenManager } = useAuth();
   const router = useRouter();
   const [profile, setProfile] = useState<{
     name: string;
@@ -19,6 +20,7 @@ export default function ProfilePage() {
     subscription: string;
     expireDate: string;
     fileLimit: string;
+    waitlist: string;
     proToken?: string | null;
   } | null>(null);
   const [loadingProfile, setLoadingProfile] = useState(false);
@@ -26,42 +28,13 @@ export default function ProfilePage() {
   const [tokenModalOpen, setTokenModalOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const [reveal, setReveal] = useState(false);
-  const [isUpgrading, setIsUpgrading] = useState(false);
-  const [upgradeSuccess, setUpgradeSuccess] = useState(false);
+  const [waitlistModalOpen, setWaitlistModalOpen] = useState(false);
   const [role, setRole] = useState('User');
   const [editingName, setEditingName] = useState(false);
   const [editName, setEditName] = useState('');
   const [savingProfile, setSavingProfile] = useState(false);
 
-  const handleUpgradeToPro = async () => {
-    if (!token || !ready) return;
-    
-    try {
-      setIsUpgrading(true);
-      const tokenType = typeof window !== 'undefined' ? (localStorage.getItem('token_type') || 'Bearer') : 'Bearer';
-      const response = await upgradeToPro(token, tokenType);
-      
-      if (response?.["pro-token"]) {
-        setUpgradeSuccess(true);
-        // Update profile to reflect PRO status
-        const data: any = await getUserProfile(token, tokenType);
-        const details = data?.["user-details"] || {};
-        setProfile({
-          name: String(details?.name || user?.name || ''),
-          email: String(details?.email || user?.email || ''),
-          subscription: String(details?.subscription || 'STARTER'),
-          expireDate: String(details?.expireDate || ''),
-          fileLimit: String(details?.["file-limit"] ?? ''),
-          proToken: response["pro-token"]
-        });
-      }
-    } catch (error) {
-      console.error('Upgrade failed:', error);
-      alert('Failed to upgrade to PRO. Please try again.');
-    } finally {
-      setIsUpgrading(false);
-    }
-  };
+
 
   useEffect(() => {
     if (ready && !isAuthenticated) {
@@ -75,7 +48,7 @@ export default function ProfilePage() {
       try {
         setLoadingProfile(true);
         setProfileError(null);
-        const tokenType = typeof window !== 'undefined' ? (localStorage.getItem('token_type') || 'Bearer') : 'Bearer';
+        const tokenType = await TokenManager.getTokenType();
         const data: any = await getUserProfile(token, tokenType);
         const details = data?.["user-details"] || {};
         setProfile({
@@ -84,6 +57,7 @@ export default function ProfilePage() {
           subscription: String(details?.subscription || 'STARTER'),
           expireDate: String(details?.expireDate || ''),
           fileLimit: String(details?.["file-limit"] ?? ''),
+          waitlist: String(details?.waitlist || 'false'),
           proToken: typeof details?.["PRO token"] === 'string' ? details["PRO token"] : null,
         });
         setRole(String(details?.role || 'User'));
@@ -100,7 +74,7 @@ export default function ProfilePage() {
     if (!token || !profile) return;
     try {
       setSavingProfile(true);
-      const tokenType = typeof window !== 'undefined' ? (localStorage.getItem('token_type') || 'Bearer') : 'Bearer';
+      const tokenType = await TokenManager.getTokenType();
       await updateProfile(token, { role: newRole, name: profile.name }, tokenType);
       setRole(newRole);
       const refreshed: any = await getUserProfile(token, tokenType);
@@ -111,6 +85,7 @@ export default function ProfilePage() {
         subscription: String(d?.subscription || 'STARTER'),
         expireDate: String(d?.expireDate || ''),
         fileLimit: String(d?.["file-limit"] ?? ''),
+        waitlist: String(d?.waitlist || 'false'),
         proToken: typeof d?.["PRO token"] === 'string' ? d["PRO token"] : null,
       });
     } catch (e) {
@@ -125,7 +100,7 @@ export default function ProfilePage() {
     try {
       setSavingProfile(true);
       const nextName = editName.trim() || profile.name;
-      const tokenType = typeof window !== 'undefined' ? (localStorage.getItem('token_type') || 'Bearer') : 'Bearer';
+      const tokenType = await TokenManager.getTokenType();
       await updateProfile(token, { name: nextName, role }, tokenType);
       const refreshed: any = await getUserProfile(token, tokenType);
       const d = refreshed?.["user-details"] || {};
@@ -135,6 +110,7 @@ export default function ProfilePage() {
         subscription: String(d?.subscription || 'STARTER'),
         expireDate: String(d?.expireDate || ''),
         fileLimit: String(d?.["file-limit"] ?? ''),
+        waitlist: String(d?.waitlist || 'false'),
         proToken: typeof d?.["PRO token"] === 'string' ? d["PRO token"] : null,
       });
       setEditingName(false);
@@ -300,40 +276,29 @@ export default function ProfilePage() {
                         </div>
                       ) : (
                         <div className="mt-4 space-y-3">
-                        <button
-                          onClick={handleUpgradeToPro}
-                          disabled={isUpgrading}
-                          className="group relative w-full inline-flex items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-medium text-white hover:brightness-110 transition shadow-[0_0_15px_-5px] shadow-blue-500/30 ring-1 ring-white/20"
-                          style={{ backgroundImage: 'linear-gradient(to right, #3b82f6 0%, #3b82f6 60%, #1e40af 100%)' }}
-                        >
-                          {isUpgrading ? (
-                            <>
-                              <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                              </svg>
-                              Upgrading...
-                            </>
+                          {profile.waitlist === 'true' ? (
+                            <div className="rounded-md bg-green-500/10 p-3 text-sm text-green-400 border border-green-500/20">
+                              <div className="flex items-center gap-2">
+                                <CheckCircle2 className="h-5 w-5" />
+                                <span>You're on the PRO waitlist!</span>
+                              </div>
+                              <p className="text-xs text-green-300 mt-1">We'll notify you when PRO features are available.</p>
+                            </div>
                           ) : (
                             <>
-                              <span>Upgrade to PRO</span>
-                              <span className="pointer-events-none absolute -inset-px rounded-md opacity-0 group-hover:opacity-100 transition" 
-                                    style={{ backgroundImage: 'linear-gradient(to right, rgba(59, 130, 246, 0.2) 0%, rgba(30, 64, 175, 0.2) 100%)' }} />
+                              <button
+                                onClick={() => setWaitlistModalOpen(true)}
+                                className="group relative w-full inline-flex items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-medium text-white hover:brightness-110 transition shadow-[0_0_15px_-5px] shadow-blue-500/30 ring-1 ring-white/20"
+                                style={{ backgroundImage: 'linear-gradient(to right, #3b82f6 0%, #3b82f6 60%, #1e40af 100%)' }}
+                              >
+                                <span>Join PRO Waitlist</span>
+                                <span className="pointer-events-none absolute -inset-px rounded-md opacity-0 group-hover:opacity-100 transition"
+                                  style={{ backgroundImage: 'linear-gradient(to right, rgba(59, 130, 246, 0.2) 0%, rgba(30, 64, 175, 0.2) 100%)' }} />
+                              </button>
+                              <p className="text-xs text-neutral-400">Join the waitlist to be notified when PRO features are available.</p>
                             </>
                           )}
-                        </button>
-                        {upgradeSuccess && (
-                          <div className="rounded-md bg-green-500/10 p-3 text-sm text-green-400">
-                            <div className="flex items-center gap-2">
-                              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                              </svg>
-                              Successfully upgraded to PRO! Your token is now available below.
-                            </div>
-                          </div>
-                        )}
-                        <p className="text-xs text-neutral-400">PRO token is available only for PRO subscription.</p>
-                      </div>
+                        </div>
                       )}
                     </div>
                   ) : (
@@ -345,7 +310,6 @@ export default function ProfilePage() {
                   <h2 className="text-lg font-semibold">Security</h2>
                   <p className="mt-2 text-sm text-neutral-300">Update your password or sign out of your account.</p>
                   <div className="mt-4 flex flex-wrap gap-3">
-                    <Link href="/contact" className="rounded-md px-3 py-1.5 text-sm bg-white/10 hover:bg-white/20">Change password</Link>
                     <button onClick={signOut} className="rounded-md px-3 py-1.5 text-sm bg-red-500 hover:bg-red-400 text-white">Sign out</button>
                   </div>
                 </section>
@@ -374,7 +338,7 @@ export default function ProfilePage() {
                                 reveal
                                   ? profile.proToken
                                   : `${'•'.repeat(Math.min(32, profile.proToken.length))}${profile.proToken.length > 32 ? '...' : ''}`
-                                )
+                              )
                               : 'No token available'}
                           </div>
                           {profile?.proToken && (
@@ -388,7 +352,21 @@ export default function ProfilePage() {
                                 <span className="hidden sm:inline">{reveal ? 'Hide' : 'Reveal'}</span>
                               </button>
                               <button
-                                onClick={async () => { if (profile?.proToken) { await navigator.clipboard.writeText(profile.proToken); setCopied(true); setTimeout(() => setCopied(false), 2000); } }}
+                                onClick={async () => {
+                                  if (profile?.proToken) {
+                                    const confirmed = window.confirm('Copy PRO token to clipboard?');
+                                    if (confirmed) {
+                                      try {
+                                        await navigator.clipboard.writeText(profile.proToken);
+                                        setCopied(true);
+                                        const timer = setTimeout(() => setCopied(false), 2000);
+                                      } catch (error) {
+                                        console.error('Failed to copy to clipboard');
+                                        alert('Failed to copy token. Please copy manually.');
+                                      }
+                                    }
+                                  }
+                                }}
                                 className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs bg-gradient-to-r from-yellow-600 to-yellow-500 hover:from-yellow-500 hover:to-yellow-400 text-black"
                                 title="Copy token"
                               >
@@ -416,6 +394,19 @@ export default function ProfilePage() {
         </div>
       </main>
       <Footer />
+
+      {/* Waitlist Modal */}
+      {profile && token && (
+        <LoggedInWaitlistModal
+          isOpen={waitlistModalOpen}
+          onClose={() => setWaitlistModalOpen(false)}
+          userEmail={profile.email}
+          userName={profile.name}
+          userRole={role}
+          token={token}
+          tokenType="Bearer"
+        />
+      )}
     </div>
   );
 }

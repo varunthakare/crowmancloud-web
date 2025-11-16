@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
 export type AuthUser = {
   name?: string | null;
@@ -16,14 +16,116 @@ function decodeJwt(token: string): any | null {
   }
 }
 
+// Secure token management utilities
+const TokenManager = {
+  // Get token from httpOnly cookie via API call
+  async getToken(): Promise<string | null> {
+    try {
+      const response = await fetch('/api/auth/token', {
+        method: 'GET',
+        credentials: 'include'
+      });
+      if (response.ok) {
+        const data = await response.json();
+        return data.token || null;
+      }
+    } catch (error) {
+      console.warn('Failed to get token from secure storage');
+    }
+    
+    return null;
+  },
+
+  // Get token type from httpOnly cookie via API call
+  async getTokenType(): Promise<string> {
+    try {
+      const response = await fetch('/api/auth/token', {
+        method: 'GET',
+        credentials: 'include'
+      });
+      if (response.ok) {
+        const data = await response.json();
+        return data.tokenType || 'Bearer';
+      }
+    } catch (error) {
+      console.warn('Failed to get token type from secure storage');
+    }
+    
+    return 'Bearer';
+  },
+
+  // Set token securely
+  async setToken(token: string, tokenType: string = 'Bearer'): Promise<void> {
+    try {
+      const response = await fetch('/api/auth/token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ token, tokenType })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to store token securely');
+      }
+    } catch (error) {
+      console.error('Failed to set token securely:', error);
+      throw error;
+    }
+  },
+
+  // Clear token securely
+  async clearToken(): Promise<void> {
+    try {
+      await fetch('/api/auth/token', {
+        method: 'DELETE',
+        credentials: 'include'
+      });
+    } catch (error) {
+      console.warn('Failed to clear token securely');
+    }
+  }
+};
+
 export function useAuth() {
   const [token, setToken] = useState<string | null>(null);
   const [user, setUser] = useState<AuthUser | null>(null);
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    // initial read
-    const t = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
+    // Initial token load with secure method
+    const loadToken = async () => {
+      const t = await TokenManager.getToken();
+      setToken(t);
+      if (t) {
+        const payload = decodeJwt(t);
+        setUser({ name: payload?.name ?? null, email: payload?.email ?? null });
+      } else {
+        setUser(null);
+      }
+      setReady(true);
+    };
+
+    loadToken();
+  }, []);
+
+  const isAuthenticated = !!token;
+
+  const signOut = async () => {
+    try {
+      await TokenManager.clearToken();
+      // trigger auth state change for same tab
+      setToken(null);
+      setUser(null);
+    } catch (error) {
+      console.error('Error during sign out:', error);
+      // Still clear local state even if API call fails
+      setToken(null);
+      setUser(null);
+    }
+  };
+
+  const refreshAuth = async () => {
+    const t = await TokenManager.getToken();
     setToken(t);
     if (t) {
       const payload = decodeJwt(t);
@@ -31,44 +133,7 @@ export function useAuth() {
     } else {
       setUser(null);
     }
-
-    // listen for changes from other tabs or sign-in/sign-out flows
-    const onStorage = (e: StorageEvent) => {
-      if (e.key === "access_token") {
-        const nt = e.newValue;
-        setToken(nt);
-        if (nt) {
-          const p = decodeJwt(nt);
-          setUser({ name: p?.name ?? null, email: p?.email ?? null });
-        } else {
-          setUser(null);
-        }
-      }
-    };
-    window.addEventListener("storage", onStorage);
-    setReady(true);
-    return () => window.removeEventListener("storage", onStorage);
-  }, []);
-
-  const isAuthenticated = !!token;
-
-  const clearCookie = (name: string) => {
-    try {
-      document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/`;
-    } catch {}
   };
 
-  const signOut = () => {
-    if (typeof window !== "undefined") {
-      localStorage.removeItem("access_token");
-      localStorage.removeItem("token_type");
-      clearCookie("access_token");
-      clearCookie("token_type");
-      // trigger auth state change for same tab
-      setToken(null);
-      setUser(null);
-    }
-  };
-
-  return { isAuthenticated, token, user, signOut, ready };
+  return { isAuthenticated, token, user, signOut, refreshAuth, ready, TokenManager };
 }

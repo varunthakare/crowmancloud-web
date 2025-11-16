@@ -116,7 +116,7 @@ export async function apiFetchWithJsonResponse(path: string, options: RequestIni
 
   const url = `${API_BASE_URL}${path}`;
   const headers = new Headers(options.headers);
-  
+
   // Log the complete request details
   console.log('API Request:', {
     method: options.method || 'GET',
@@ -132,7 +132,7 @@ export async function apiFetchWithJsonResponse(path: string, options: RequestIni
       credentials: 'include',
       mode: 'cors'
     });
-    
+
     // Log response details
     console.log('API Response:', {
       url,
@@ -153,20 +153,31 @@ export async function apiFetchWithJsonResponse(path: string, options: RequestIni
 
       const message = (errorData && (errorData.message || errorData.detail)) || rawText || `HTTP error! status: ${response.status}`;
 
-      console.error('API Error Details:', {
-        url,
-        status: response.status,
-        statusText: response.statusText,
-        bodyText: rawText,
-      });
+      // Sanitize error logging for production
+      const isDevelopment = process.env.NODE_ENV === 'development';
+      
+      if (isDevelopment) {
+        console.error('API Error Details:', {
+          url,
+          status: response.status,
+          statusText: response.statusText,
+          bodyText: rawText,
+        });
 
-      // Handle specific status codes
-      if (response.status === 403) {
-        console.error('403 Forbidden - Possible issues:');
-        console.error('- Invalid or expired token');
-        console.error('- Missing required permissions/roles');
-        console.error('- CSRF token missing or invalid');
-        console.error('- CORS misconfiguration');
+        // Handle specific status codes in development
+        if (response.status === 403) {
+          console.error('403 Forbidden - Possible issues:');
+          console.error('- Invalid or expired token');
+          console.error('- Missing required permissions/roles');
+          console.error('- CSRF token missing or invalid');
+          console.error('- CORS misconfiguration');
+        }
+      } else {
+        // Only log generic error info in production
+        console.error('API request failed:', {
+          status: response.status,
+          url: url.replace(/\/[^\/]*$/, '/***') // Mask sensitive URL parts
+        });
       }
 
       throw new Error(message);
@@ -174,12 +185,19 @@ export async function apiFetchWithJsonResponse(path: string, options: RequestIni
 
     return response.json();
   } catch (error) {
-    console.error('Request failed:', {
-      error,
-      url,
-      method: options.method || 'GET'
-    });
-    throw error;
+    const isDevelopment = process.env.NODE_ENV === 'development';
+    
+    if (isDevelopment) {
+      console.error('Request failed:', {
+        error,
+        url,
+        method: options.method || 'GET'
+      });
+    } else {
+      console.error('Network request failed');
+    }
+    
+    throw new Error(isDevelopment ? (error as Error).message : 'Network error occurred');
   }
 }
 
@@ -208,24 +226,24 @@ export async function analyzeCode(file: File, token: string, tokenType: string =
 
     const issues = Array.isArray(data?.vulnerabilities)
       ? data.vulnerabilities.map((v: any, idx: number) => ({
-          id: String(v?.ruleId ?? idx),
-          level: String(v?.severity ?? 'info').toLowerCase(),
-          title: String(v?.type ?? 'Issue'),
-          package: null,
-          specifier: null,
-          details: typeof v?.codeSnippet === 'string' ? v.codeSnippet : '',
-          description: typeof v?.description === 'string' ? v.description : '',
-          remediation: typeof v?.recommendation === 'string' ? v.recommendation : '',
-          cve_id: (v?.cveId ? String(v.cveId) : null),
-          fixed_in: null,
-        }))
+        id: String(v?.ruleId ?? idx),
+        level: String(v?.severity ?? 'info').toLowerCase(),
+        title: String(v?.type ?? 'Issue'),
+        package: null,
+        specifier: null,
+        details: typeof v?.codeSnippet === 'string' ? v.codeSnippet : '',
+        description: typeof v?.description === 'string' ? v.description : '',
+        remediation: typeof v?.recommendation === 'string' ? v.recommendation : '',
+        cve_id: (v?.cveId ? String(v.cveId) : null),
+        fixed_in: null,
+      }))
       : [];
 
     const languageGuess = file.name.toLowerCase().endsWith('.java')
       ? 'java'
       : file.name.toLowerCase().endsWith('.py')
-      ? 'python'
-      : 'unknown';
+        ? 'python'
+        : 'unknown';
 
     const mapped = {
       file_name: data?.fileName ?? file.name,
@@ -252,7 +270,14 @@ export async function analyzeCode(file: File, token: string, tokenType: string =
 
     return mapped;
   } catch (error) {
-    console.error('Analysis failed:', error);
+    const isDevelopment = process.env.NODE_ENV === 'development';
+    
+    if (isDevelopment) {
+      console.error('Analysis failed:', error);
+    } else {
+      console.error('Code analysis request failed');
+    }
+    
     throw new Error('Failed to analyze code. Please try again.');
   }
 }
@@ -275,24 +300,7 @@ export async function getUserProfile(token: string, tokenType: string = "Bearer"
   });
 }
 
-export async function upgradeToPro(token: string, tokenType: string = "Bearer") {
-  if (!API_BASE_URL) {
-    throw new Error("NEXT_PUBLIC_API_URL is not configured");
-  }
 
-  const authToken = tokenType.toLowerCase() === 'bearer' && !token.startsWith('Bearer ')
-    ? `Bearer ${token}`
-    : token;
-
-  const headers = new Headers();
-  headers.append('Authorization', authToken);
-  headers.append('Content-Type', 'application/json');
-
-  return apiFetchWithJsonResponse('/api/auth/buy-pro', {
-    method: 'PATCH',
-    headers,
-  });
-}
 
 export async function updateProfile(
   token: string,
@@ -320,5 +328,67 @@ export async function updateProfile(
     method: 'PUT',
     headers,
     body: JSON.stringify(body)
+  });
+}
+
+// Waitlist API functions
+export async function sendWaitlistOtp(email: string, token?: string, tokenType: string = 'Bearer') {
+  const headers = new Headers();
+  headers.append('Content-Type', 'application/json');
+
+  // Add auth token only if provided (for logged-in users)
+  if (token) {
+    const authToken = tokenType.toLowerCase() === 'bearer' && !token.startsWith('Bearer ')
+      ? `Bearer ${token}`
+      : token;
+    headers.append('Authorization', authToken);
+  }
+
+  return apiFetchWithJsonResponse(`/api/form/send-otp/${encodeURIComponent(email)}`, {
+    method: 'PATCH',
+    headers,
+  });
+}
+
+export async function verifyWaitlistOtp(email: string, otp: string, token?: string, tokenType: string = 'Bearer') {
+  const headers = new Headers();
+  headers.append('Content-Type', 'application/json');
+
+  // Add auth token only if provided (for logged-in users)
+  if (token) {
+    const authToken = tokenType.toLowerCase() === 'bearer' && !token.startsWith('Bearer ')
+      ? `Bearer ${token}`
+      : token;
+    headers.append('Authorization', authToken);
+  }
+
+  return apiFetchWithJsonResponse(`/api/form/verify-otp/${encodeURIComponent(email)}/${encodeURIComponent(otp)}`, {
+    method: 'PATCH',
+    headers,
+  });
+}
+
+export async function submitWaitlistForm(data: {
+  name: string;
+  role: string;
+  email: string;
+  message: string;
+}, token: string, tokenType: string = 'Bearer') {
+  if (!API_BASE_URL) {
+    throw new Error("NEXT_PUBLIC_API_URL is not configured");
+  }
+
+  const authToken = tokenType.toLowerCase() === 'bearer' && !token.startsWith('Bearer ')
+    ? `Bearer ${token}`
+    : token;
+
+  const headers = new Headers();
+  headers.append('Authorization', authToken);
+  headers.append('Content-Type', 'application/json');
+
+  return apiFetchWithJsonResponse('/api/form/submit', {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(data)
   });
 }

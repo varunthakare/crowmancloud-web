@@ -243,7 +243,11 @@ export default function Navbar() {
             <p className="mt-1 text-sm text-neutral-300">Are you sure you want to log out?</p>
             <div className="mt-4 flex justify-end gap-2">
               <button onClick={() => setConfirmOpen(false)} className="rounded-md px-3 py-1.5 text-sm bg-white/10 hover:bg-white/20">Cancel</button>
-              <button onClick={() => { setConfirmOpen(false); signOut(); window.location.reload(); }} className="rounded-md px-3 py-1.5 text-sm bg-red-500 hover:bg-red-400 text-white">Logout</button>
+              <button onClick={async () => { 
+                setConfirmOpen(false); 
+                await signOut(); 
+                window.location.href = "/"; 
+              }} className="rounded-md px-3 py-1.5 text-sm bg-red-500 hover:bg-red-400 text-white">Logout</button>
             </div>
           </div>
         </div>,

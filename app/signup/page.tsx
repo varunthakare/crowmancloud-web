@@ -9,6 +9,7 @@ import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { GoogleLogin } from '@react-oauth/google';
 import { googleSignUp, sendOtp, verifyOtp, registerWithOtp } from "@/lib/api";
+import { validateEmail, validateName, validatePassword, validateOTP, emailRateLimiter } from "@/lib/validation";
 
 export default function SignUpPage() {
   const router = useRouter();
@@ -46,19 +47,34 @@ export default function SignUpPage() {
 
       const data = await response.json();
 
-      // Store token from backend shape
+      // Store token securely using httpOnly cookies only
       const token = data.token || data.access_token;
       if (token) {
-        localStorage.setItem('access_token', token);
-        localStorage.setItem('token_type', data.token_type || 'bearer');
+        try {
+          const response = await fetch('/api/auth/token', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ token, tokenType: data.token_type || 'bearer' })
+          });
+          
+          if (!response.ok) {
+            throw new Error('Failed to store authentication token securely');
+          }
+          
+          setSuccess("Account created successfully with Google!");
+          
+          // Redirect to vulnerability page
+          const redirectTimer = setTimeout(() => {
+            router.push("/vulnerability");
+          }, 1500);
+        } catch (error) {
+          console.error('Secure token storage failed:', error);
+          throw new Error('Account creation failed. Please try again.');
+        }
+      } else {
+        throw new Error('No authentication token received');
       }
-      
-      setSuccess("Account created successfully with Google!");
-      
-      // Redirect to vulnerability page
-      setTimeout(() => {
-        router.push("/vulnerability");
-      }, 1500);
     } catch (err: any) {
       setError(err.message || 'Google sign up failed');
     } finally {
@@ -79,27 +95,54 @@ export default function SignUpPage() {
     setLoading(true);
     try {
       if (step === 'email') {
-        if (!email) throw new Error('Please enter your email');
-        const res: any = await sendOtp(email);
+        // Validate email
+        const emailValidation = validateEmail(email);
+        if (!emailValidation.isValid) {
+          throw new Error(emailValidation.error);
+        }
+        
+        // Check rate limiting
+        if (!emailRateLimiter.isAllowed(emailValidation.sanitized!)) {
+          const remainingTime = Math.ceil(emailRateLimiter.getRemainingTime(emailValidation.sanitized!) / 1000 / 60);
+          throw new Error(`Too many attempts. Please try again in ${remainingTime} minutes.`);
+        }
+        
+        const res: any = await sendOtp(emailValidation.sanitized!);
         if (res?.status !== 'success') throw new Error(res?.message || 'Failed to send OTP');
         setSuccess(res?.message || 'OTP sent successfully');
         setStep('otp');
       } else if (step === 'otp') {
-        if (!otp) throw new Error('Please enter the OTP');
-        const res: any = await verifyOtp(email, otp);
+        // Validate OTP
+        const otpValidation = validateOTP(otp);
+        if (!otpValidation.isValid) {
+          throw new Error(otpValidation.error);
+        }
+        
+        const res: any = await verifyOtp(email, otpValidation.sanitized!);
         if (res?.status !== 'success' || !res?.token) throw new Error(res?.message || 'Failed to verify OTP');
         setVerifyToken(String(res.token));
         setSuccess('OTP verified successfully');
         setStep('details');
       } else {
-        if (!name) throw new Error('Please enter your name');
-        if (!password) throw new Error('Please enter a password');
+        // Validate name
+        const nameValidation = validateName(name);
+        if (!nameValidation.isValid) {
+          throw new Error(nameValidation.error);
+        }
+        
+        // Validate password
+        const passwordValidation = validatePassword(password);
+        if (!passwordValidation.isValid) {
+          throw new Error(passwordValidation.error);
+        }
+        
         if (password !== confirmPassword) throw new Error('Passwords do not match');
         if (!verifyToken) throw new Error('Missing verification token');
-        const res: any = await registerWithOtp(name, email, password, verifyToken);
+        
+        const res: any = await registerWithOtp(nameValidation.sanitized!, email, password, verifyToken);
         if (res?.status !== 'success') throw new Error(res?.message || 'Registration failed');
         setSuccess('User registered successfully');
-        setTimeout(() => {
+        const redirectTimer = setTimeout(() => {
           router.push('/vulnerability');
         }, 800);
       }
@@ -216,7 +259,9 @@ export default function SignUpPage() {
                     className="mt-1 w-full rounded-md bg-neutral-900 border border-white/10 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-brand-500"
                     placeholder="••••••••"
                     required
-                    minLength={6}
+                    minLength={8}
+                    pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$"
+                    title="Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character"
                   />
                 </div>
                 <div>
@@ -229,7 +274,9 @@ export default function SignUpPage() {
                     className="mt-1 w-full rounded-md bg-neutral-900 border border-white/10 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-brand-500"
                     placeholder="••••••••"
                     required
-                    minLength={6}
+                    minLength={8}
+                    pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$"
+                    title="Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character"
                   />
                 </div>
                 {error && (

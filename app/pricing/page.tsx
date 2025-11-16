@@ -1,12 +1,18 @@
 "use client";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import AnimatedBG from "@/components/AnimatedBG";
+import ProWaitlistModal from "@/components/ProWaitlistModal";
 import { Check, X } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function PricingPage() {
+  const [isProModalOpen, setIsProModalOpen] = useState(false);
+  const { token, TokenManager } = useAuth();
+
   const plans = [
     {
       name: "Starter",
@@ -26,7 +32,7 @@ export default function PricingPage() {
       price: "$19/mo",
       tagline: "For indie devs & small teams",
       features: [
-        "10 checks",
+        "14 checks",
         "Vulnerability checks",
         "Cloud provider recommendations",
         "Cloud estimation",
@@ -35,14 +41,14 @@ export default function PricingPage() {
         "Offline IDE",
       ],
       highlighted: true,
-      cta: { label: "Start Pro", href: "/" as const },
+      cta: { label: "Start Pro", action: "modal" as const },
     },
     {
       name: "Team",
       price: "$49/mo",
       tagline: "For growing teams",
       features: [
-        "10 checks",
+        "20 checks",
         "Vulnerability checks",
         "Cloud provider recommendations",
         "Cloud estimation",
@@ -90,9 +96,8 @@ export default function PricingPage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: idx * 0.06 }}
-                className={`rounded-xl border border-white/10 p-6 bg-white/5 ${
-                  plan.highlighted ? "ring-1 ring-brand-500/40 bg-white/10" : ""
-                }`}
+                className={`rounded-xl border border-white/10 p-6 bg-white/5 ${plan.highlighted ? "ring-1 ring-brand-500/40 bg-white/10" : ""
+                  }`}
               >
                 <div className="flex items-baseline justify-between">
                   <h2 className="text-xl font-semibold">{plan.name}</h2>
@@ -108,16 +113,27 @@ export default function PricingPage() {
                   ))}
                 </ul>
                 <div className="mt-6">
-                  <Link
-                    href={plan.cta.href}
-                    className={`inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition ${
-                      plan.highlighted
+                  {"action" in plan.cta && plan.cta.action === "modal" ? (
+                    <button
+                      onClick={() => setIsProModalOpen(true)}
+                      className={`inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition w-full ${plan.highlighted
                         ? "bg-brand-500 hover:bg-brand-400 text-white"
                         : "bg-white/10 hover:bg-white/20"
-                    }`}
-                  >
-                    {plan.cta.label}
-                  </Link>
+                        }`}
+                    >
+                      {plan.cta.label}
+                    </button>
+                  ) : (
+                    <Link
+                      href={"href" in plan.cta ? plan.cta.href : "/"}
+                      className={`inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition w-full ${plan.highlighted
+                        ? "bg-brand-500 hover:bg-brand-400 text-white"
+                        : "bg-white/10 hover:bg-white/20"
+                        }`}
+                    >
+                      {plan.cta.label}
+                    </Link>
+                  )}
                 </div>
               </motion.div>
             ))}
@@ -140,8 +156,8 @@ export default function PricingPage() {
                 </thead>
                 <tbody className="divide-y divide-white/10">
                   {[
-                    { label: "Checks", starter: "2", pro: "10", team: "10" },
-                    { label: "Files checked", starter: "25", pro: "Unlimited", team: "Unlimited" },
+                    { label: "Checks", starter: "7", pro: "14", team: "20" },
+                    { label: "Files checked", starter: "7", pro: "Unlimited", team: "Unlimited" },
                     { label: "Vulnerability checks", starter: true, pro: true, team: true },
                     { label: "Cloud provider recommendations", starter: false, pro: true, team: true },
                     { label: "Cloud estimation", starter: false, pro: true, team: true },
@@ -180,6 +196,13 @@ export default function PricingPage() {
         </div>
       </main>
       <Footer />
+
+      {/* Pro Waitlist Modal */}
+      <ProWaitlistModal
+        isOpen={isProModalOpen}
+        onClose={() => setIsProModalOpen(false)}
+        tokenType="Bearer"
+      />
     </div>
   );
 }
