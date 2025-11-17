@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 export const metadata: Metadata = {
   title: 'Features',
   description:
-    'Explore CrowmanCloud features: repo analysis, infrastructure blueprints, cost estimation, and vulnerability checks for cloud‑ready apps.',
+    'Explore CrowmanCloud features: comprehensive repo analysis, infrastructure blueprints, cost estimation, and vulnerability checks for cloud‑ready applications.',
   alternates: { canonical: '/features' },
   openGraph: {
     type: 'website',

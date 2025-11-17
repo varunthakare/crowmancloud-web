@@ -1,14 +1,7 @@
-import type { Metadata } from 'next';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import ShowcaseSection from '@/components/ShowcaseSection';
 import AnimatedBG from '@/components/AnimatedBG';
-
-export const metadata: Metadata = {
-  title: 'Showcase - Cloud Deployment Platform | CrowmanCloud',
-  description: 'See CrowmanCloud in action: automated cloud-readiness analysis, deployment file generation, cost estimation, and security scanning for AWS, GCP, and Azure.',
-  keywords: ['cloud deployment showcase', 'automated DevOps demo', 'cost estimation demo', 'cloud readiness analysis', 'deployment automation'],
-};
 
 export default function ShowcasePage() {
   return (
