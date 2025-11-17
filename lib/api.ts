@@ -155,7 +155,7 @@ export async function apiFetchWithJsonResponse(path: string, options: RequestIni
 
       // Sanitize error logging for production
       const isDevelopment = process.env.NODE_ENV === 'development';
-      
+
       if (isDevelopment) {
         console.error('API Error Details:', {
           url,
@@ -186,7 +186,7 @@ export async function apiFetchWithJsonResponse(path: string, options: RequestIni
     return response.json();
   } catch (error) {
     const isDevelopment = process.env.NODE_ENV === 'development';
-    
+
     if (isDevelopment) {
       console.error('Request failed:', {
         error,
@@ -196,7 +196,7 @@ export async function apiFetchWithJsonResponse(path: string, options: RequestIni
     } else {
       console.error('Network request failed');
     }
-    
+
     throw new Error(isDevelopment ? (error as Error).message : 'Network error occurred');
   }
 }
@@ -223,6 +223,28 @@ export async function analyzeCode(file: File, token: string, tokenType: string =
     });
 
     const data: any = res;
+
+    console.log('Analysis response data:', {
+      status: data?.status,
+      message: data?.message,
+      hasVulnerabilities: !!data?.vulnerabilities,
+      dataKeys: Object.keys(data || {})
+    });
+
+    // Check if the response indicates a file limit error (even with 202 status)
+    const message = data?.message || '';
+    const isFailStatus = data?.status === 'fail' || data?.status === 'error';
+    const hasLimitMessage = message.toLowerCase().includes('file limit') ||
+      message.toLowerCase().includes('cannot scan more files') ||
+      message.toLowerCase().includes('upgrade to') ||
+      message.toLowerCase().includes('exceeded');
+
+    if (data && (isFailStatus || hasLimitMessage) && message && hasLimitMessage) {
+      console.log('Detected file limit exceeded error:', { status: data.status, message });
+      const limitError = new Error(message);
+      (limitError as any).type = 'FILE_LIMIT_EXCEEDED';
+      throw limitError;
+    }
 
     const issues = Array.isArray(data?.vulnerabilities)
       ? data.vulnerabilities.map((v: any, idx: number) => ({
@@ -271,13 +293,24 @@ export async function analyzeCode(file: File, token: string, tokenType: string =
     return mapped;
   } catch (error) {
     const isDevelopment = process.env.NODE_ENV === 'development';
-    
+
     if (isDevelopment) {
       console.error('Analysis failed:', error);
     } else {
       console.error('Code analysis request failed');
     }
-    
+
+    // Check if it's a file limit error
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    if (errorMessage.includes('file limit has been exceeded') ||
+      errorMessage.includes('cannot scan more files') ||
+      errorMessage.includes('upgrade to the Pro version')) {
+      // Create a specific error type for file limits
+      const limitError = new Error(errorMessage);
+      (limitError as any).type = 'FILE_LIMIT_EXCEEDED';
+      throw limitError;
+    }
+
     throw new Error('Failed to analyze code. Please try again.');
   }
 }
