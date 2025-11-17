@@ -11,7 +11,6 @@ import { useAuth } from "@/hooks/useAuth";
 
 export default function PricingPage() {
   const [isProModalOpen, setIsProModalOpen] = useState(false);
-  const { token, TokenManager } = useAuth();
 
   const plans = [
     {

@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 export const metadata: Metadata = {
   title: 'FAQ',
   description:
-    'Answers to common questions about CrowmanCloud plans, checks, supported frameworks, and security.',
+    'Answers to common questions about CrowmanCloud plans, checks, supported frameworks, security features, pricing, and deployment best practices for developers.',
   alternates: { canonical: '/faq' },
   openGraph: {
     type: 'website',
