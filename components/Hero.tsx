@@ -43,7 +43,7 @@ export default function Hero() {
             transition={{ duration: 0.7, delay: 0.05 }}
             className="mt-6 text-4xl sm:text-6xl font-semibold tracking-tight"
           >
-            Deploy your code to the cloud 10x faster — with automated cloud‑readiness analysis
+            Deploy your code to the cloud 10x faster with automated cloud‑readiness analysis
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 12 }}

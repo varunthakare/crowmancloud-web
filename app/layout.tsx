@@ -17,7 +17,7 @@ export const metadata: Metadata = {
     template: '%s | CrowmanCloud',
   },
   description:
-    'Deploy your code to the cloud 10x faster with automated cloud-readiness analysis. CrowmanCloud scans projects, finds issues, generates deployment configs, and provides accurate cloud cost estimations for AWS, GCP, and Azure.',
+    'Deploy code 10x faster with automated cloud-readiness analysis. CrowmanCloud scans projects, generates configs, and provides accurate cost estimations.',
   keywords: [
     'cloud deployment tool',
     'cloud readiness analyzer',
@@ -57,7 +57,7 @@ export const metadata: Metadata = {
     siteName: 'CrowmanCloud',
     title: 'CrowmanCloud - Deploy Code 10x Faster | Cloud Deployment Tool',
     description:
-      'Deploy your code to the cloud 10x faster with automated cloud-readiness analysis. CrowmanCloud scans projects, generates deployment configs, and provides accurate cloud cost estimations.',
+      'Deploy code 10x faster with automated cloud-readiness analysis. CrowmanCloud scans projects, generates configs, and provides accurate cost estimations.',
     images: [
       {
         url: '/img/crowman-sky-diving.jpeg',
@@ -71,7 +71,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'CrowmanCloud - Deploy Code 10x Faster | Cloud Deployment Tool',
     description:
-      'Deploy your code to the cloud 10x faster with automated cloud-readiness analysis. CrowmanCloud scans projects, generates deployment configs, and provides accurate cloud cost estimations.',
+      'Deploy code 10x faster with automated cloud-readiness analysis. CrowmanCloud scans projects, generates configs, and provides accurate cost estimations.',
     images: ['/img/crowman-sky-diving.jpeg'],
   },
   robots: {
@@ -103,7 +103,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     alternateName: ['Crowman', 'Crowman Cloud'],
     url: siteUrl,
     logo: `${siteUrl}/favicon.svg`,
-    description: 'Deploy your code to the cloud 10x faster with automated cloud-readiness analysis. CrowmanCloud scans projects, generates deployment configs, and provides accurate cloud cost estimations.',
+    description: 'Deploy code 10x faster with automated cloud-readiness analysis. CrowmanCloud scans projects, generates configs, and provides accurate cost estimations.',
     foundingDate: '2024',
     industry: 'Software Development',
     sameAs: [
@@ -137,7 +137,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     operatingSystem: 'Web',
     url: siteUrl,
     description:
-      'Deploy your code to the cloud 10x faster with automated cloud-readiness analysis. CrowmanCloud scans projects, generates deployment configs, and provides accurate cloud cost estimations.',
+      'Deploy code 10x faster with automated cloud-readiness analysis. CrowmanCloud scans projects, generates configs, and provides accurate cost estimations.',
     keywords: 'cloud deployment tool, cloud readiness analyzer, automated DevOps platform, cost estimation AWS GCP Azure',
     offers: {
       '@type': 'Offer',
