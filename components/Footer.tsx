@@ -14,7 +14,7 @@ export default function Footer() {
               <span className="font-semibold">CrowmanCloud</span>
             </div>
             <p className="mt-3 text-neutral-400">
-              AI‑powered pre‑deployment toolkit: readiness checks, infra automation, cloud recommendations, and cost estimation—locally.
+              Deploy your code to the cloud 10x faster with automated cloud-readiness analysis, deployment configs, and accurate cost estimations.
             </p>
             <div className="mt-4 flex items-center gap-3 flex-wrap">
               <a href="https://github.com/crowmancloud" target="_blank" rel="noreferrer noopener" className="inline-flex items-center gap-2 rounded-md px-3 py-1.5 bg-white/10 hover:bg-white/20 transition">
@@ -64,7 +64,7 @@ export default function Footer() {
         </div>
 
         <div className="mt-10 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-neutral-500">
-          <p> {year} CrowmanCloud. All rights reserved.</p>
+          <p>© {year} CrowmanCloud. All rights reserved. Use responsibly. Privacy-first by design.</p>
           <p>Built with love for developers.</p>
         </div>
       </div>

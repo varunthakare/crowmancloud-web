@@ -13,19 +13,22 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:8000';
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: 'CrowmanCloud - AI-Powered Cloud Developer Platform | Crowman',
-    template: '%s | CrowmanCloud - Crowman',
+    default: 'CrowmanCloud - Deploy Code 10x Faster | Cloud Deployment Tool',
+    template: '%s | CrowmanCloud',
   },
   description:
-    'CrowmanCloud (Crowman) is the leading AI-powered pre-deployment platform. Analyze repos, auto-provision cloud infrastructure, get cost-aware guidance, and check vulnerabilities. The ultimate crowman cloud solution for developers.',
+    'Deploy your code to the cloud 10x faster with automated cloud-readiness analysis. CrowmanCloud scans projects, finds issues, generates deployment configs, and provides accurate cloud cost estimations for AWS, GCP, and Azure.',
   keywords: [
+    'cloud deployment tool',
+    'cloud readiness analyzer',
+    'automated DevOps platform',
+    'cost estimation AWS GCP Azure',
+    'deploy Spring Boot to cloud',
+    'cloud architecture generator',
+    'code analyzer for cloud',
     'crowmancloud',
     'crowman cloud',
     'crowman',
-    'crow man cloud',
-    'crowmancloud platform',
-    'crowman ai',
-    'crowmancloud ai',
     'AI developer platform',
     'cloud deployment platform',
     'pre-deployment analysis',
@@ -52,9 +55,9 @@ export const metadata: Metadata = {
     type: 'website',
     url: '/',
     siteName: 'CrowmanCloud',
-    title: 'CrowmanCloud - AI-Powered Cloud Developer Platform | Crowman',
+    title: 'CrowmanCloud - Deploy Code 10x Faster | Cloud Deployment Tool',
     description:
-      'CrowmanCloud (Crowman) - Leading AI-powered pre-deployment platform for repo analysis, cloud infrastructure blueprints, cost guidance, and vulnerability checks.',
+      'Deploy your code to the cloud 10x faster with automated cloud-readiness analysis. CrowmanCloud scans projects, generates deployment configs, and provides accurate cloud cost estimations.',
     images: [
       {
         url: '/img/crowman-sky-diving.jpeg',
@@ -66,9 +69,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'CrowmanCloud - AI-Powered Cloud Developer Platform | Crowman',
+    title: 'CrowmanCloud - Deploy Code 10x Faster | Cloud Deployment Tool',
     description:
-      'CrowmanCloud (Crowman) - Analyze repos, auto-provision cloud resources, estimate costs, and check vulnerabilities with our AI-powered platform.',
+      'Deploy your code to the cloud 10x faster with automated cloud-readiness analysis. CrowmanCloud scans projects, generates deployment configs, and provides accurate cloud cost estimations.',
     images: ['/img/crowman-sky-diving.jpeg'],
   },
   robots: {
@@ -100,7 +103,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     alternateName: ['Crowman', 'Crowman Cloud'],
     url: siteUrl,
     logo: `${siteUrl}/favicon.svg`,
-    description: 'CrowmanCloud (Crowman) - AI-powered cloud developer platform for pre-deployment analysis and infrastructure automation.',
+    description: 'Deploy your code to the cloud 10x faster with automated cloud-readiness analysis. CrowmanCloud scans projects, generates deployment configs, and provides accurate cloud cost estimations.',
     foundingDate: '2024',
     industry: 'Software Development',
     sameAs: [
@@ -134,8 +137,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     operatingSystem: 'Web',
     url: siteUrl,
     description:
-      'CrowmanCloud (Crowman) - AI-powered pre-deployment platform for repo analysis, infrastructure blueprints, cost guidance, and vulnerability checks.',
-    keywords: 'crowmancloud, crowman, AI deployment, cloud infrastructure, developer tools',
+      'Deploy your code to the cloud 10x faster with automated cloud-readiness analysis. CrowmanCloud scans projects, generates deployment configs, and provides accurate cloud cost estimations.',
+    keywords: 'cloud deployment tool, cloud readiness analyzer, automated DevOps platform, cost estimation AWS GCP Azure',
     offers: {
       '@type': 'Offer',
       price: '0',

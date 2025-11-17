@@ -7,22 +7,26 @@ import { motion } from "framer-motion";
 export default function UpdatesPage() {
   const updates = [
     {
-      version: "v0.2.0",
-      date: "2025-09-18",
-      title: "Improved developer experience",
+      version: "v1.0.0",
+      date: "2025-11-17",
+      title: "Full Production Release",
       notes: [
-        "Faster analysis engine and reduced memory usage",
-        "New login/signup API integration",
-        "UI polish, bug fixes, and accessibility improvements",
-      ],
-    },
-    {
-      version: "v0.1.0",
-      date: "2025-09-10",
-      title: "Initial preview",
-      notes: [
-        "Project scaffolding and baseline UI",
-        "Public pages and components",
+        "Complete authentication system with secure httpOnly cookie storage",
+        "Advanced vulnerability scanner supporting Java and Python files",
+        "Comprehensive security analysis with severity-based categorization",
+        "Real-time file scanning with detailed vulnerability reports",
+        "User profile management with subscription tiers (Starter/Pro)",
+        "Usage limits and tracking system (7 files/month for Starter)",
+        "Modern responsive UI with dark theme and animations",
+        "Enterprise-grade security with XSS protection and input validation",
+        "Mobile-optimized interface with touch-friendly interactions",
+        "Pro waitlist system with email verification",
+        "Integrated pricing plans with upgrade pathways",
+        "Community features and user engagement tools",
+        "Robust error handling and user-friendly feedback",
+        "Comprehensive documentation and security guidelines",
+        "Rate limiting and brute force protection",
+        "Progressive web app capabilities with offline support"
       ],
     },
   ];
