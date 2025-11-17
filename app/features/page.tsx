@@ -6,7 +6,7 @@ import AnimatedBG from '@/components/AnimatedBG';
 
 export const metadata: Metadata = {
   title: 'Features - Cloud Deployment Tool | CrowmanCloud',
-  description: 'Explore CrowmanCloud features: cloud-readiness analysis, auto-generated deployment files, real cloud cost estimation, local-first security, and architecture suggestions.',
+  description: 'Explore CrowmanCloud features: cloud-readiness analysis, auto-generated deployment files, cost estimation, local-first security, and architecture suggestions.',
   keywords: ['cloud deployment tool features', 'cloud readiness analyzer', 'automated DevOps platform', 'cost estimation AWS GCP Azure', 'deployment automation'],
 };
 
