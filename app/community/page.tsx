@@ -55,7 +55,7 @@ export default function CommunityPage() {
       title: "Discussions",
       desc: "Join community discussions, ask questions, and share knowledge with other developers.",
       icon: Users,
-      href: "/discussions" as Route,
+      href: "https://discord.gg/VJcsa4f6E" as Route,
       cta: "Join discussions",
     },
   ];
@@ -94,7 +94,7 @@ export default function CommunityPage() {
               transition={{ duration: 0.6, delay: 0.12 }}
               className="mt-8 flex items-center justify-center gap-3"
             >
-              <a href="#" className="inline-flex items-center gap-2 rounded-md px-4 py-2 text-sm bg-brand-500 hover:bg-brand-400 text-white transition">
+              <a href="https://discord.gg/VJcsa4f6E" className="inline-flex items-center gap-2 rounded-md px-4 py-2 text-sm bg-brand-500 hover:bg-brand-400 text-white transition">
                 <MessageCircle className="h-4 w-4" aria-hidden="true" />
                 Join Discord
               </a>

@@ -1,6 +1,7 @@
 import Navbar from '@/components/Navbar';
 import Hero from '@/components/Hero';
 import Features from '@/components/Features';
+import About from '@/components/About';
 import LogoMarquee from '@/components/LogoMarquee';
 import ShowcaseSection from '@/components/ShowcaseSection';
 import Footer from '@/components/Footer';
@@ -13,48 +14,49 @@ export default function HomePage() {
         <Hero />
         <LogoMarquee />
         <Features compact hideKeys={['security','multi-env']} />
+        <About />
         <ShowcaseSection
           id="showcase-code"
-          eyebrow="Code with confidence"
-          title="From idea to production faster"
-          description="Analyze your repo, auto‑provision cloud essentials, and get cost‑aware deployment guidance — all from a secure, local‑first app."
+          eyebrow="Cloud deployment tool"
+          title="From idea to production 10x faster"
+          description="Analyze your repo, auto‑provision cloud essentials, and get cost‑aware deployment guidance — all from a secure, local‑first cloud deployment tool."
           image="/starting-app.svg"
           details={[
-            'Multiple AI model options: GPT-4o, GPT-4 Turbo, GPT-3.5 Turbo',
-            'Advanced Claude models: Claude 3 Sonnet, Claude 3 Haiku',
-            'Custom model integration with + Add Custom Model',
-            'Docker Compose detection and configuration',
-            'Theme customization and personalized setup'
+            'Automated cloud-readiness analysis for any codebase',
+            'Auto-generated Dockerfiles and deployment configs',
+            'Real-time cost estimation for AWS, GCP, and Azure',
+            'Local-first processing - your code stays secure',
+            'Architecture suggestions tailored to your project'
           ]}
           reversed={false}
         />
         <ShowcaseSection
           id="showcase-security"
-          eyebrow="Security first"
+          eyebrow="Local-first security"
           title="Comprehensive security analysis"
-          description="Advanced vulnerability scanning and dependency checks keep your applications secure. Real-time monitoring and automated security insights."
+          description="Advanced vulnerability scanning and dependency checks keep your applications secure. Your code stays on your machine - no upload required."
           image="/security-analysis.svg"
           details={[
             'Automated vulnerability scanning for all dependencies',
-            'Real-time security analysis and threat detection',
+            'Local-first processing - maximum security and privacy',
             'Comprehensive dependency health monitoring',
             'Security compliance reporting and recommendations',
-            'Continuous monitoring for new security threats'
+            'Real-time security analysis without data exposure'
           ]}
           reversed={true}
         />
         <ShowcaseSection
           id="showcase-dependencies"
-          eyebrow="Dependency management"
-          title="Smart dependency monitoring"
-          description="Keep your dependencies up-to-date and secure with intelligent monitoring and automated health checks."
+          eyebrow="Cost estimation"
+          title="Accurate cloud cost predictions"
+          description="Get precise cost estimation for AWS, GCP, and Azure deployments. Interactive estimates with real-time pricing for compute, storage, and bandwidth."
           image="/dependacy-check.svg"
           details={[
-            'Automated dependency version tracking',
-            'License compliance and compatibility checks',
-            'Performance impact analysis of updates',
-            'Security patch recommendations',
-            'Dependency tree visualization and optimization'
+            'Real-time cost estimation for all major cloud providers',
+            'Interactive what-if analysis for different instance sizes',
+            'Per-service monthly totals and cost breakdowns',
+            'Regional pricing comparisons and recommendations',
+            'Export cost estimates to JSON/CSV for planning'
           ]}
           reversed={false}
         />

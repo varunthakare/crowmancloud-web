@@ -43,7 +43,7 @@ export default function Hero() {
             transition={{ duration: 0.7, delay: 0.05 }}
             className="mt-6 text-4xl sm:text-6xl font-semibold tracking-tight"
           >
-            Deploy to the Cloud with Confidence
+            Deploy your code to the cloud 10x faster — with automated cloud‑readiness analysis
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 12 }}
@@ -52,7 +52,7 @@ export default function Hero() {
             transition={{ duration: 0.7, delay: 0.12 }}
             className="mt-6 text-lg text-neutral-300"
           >
-            CrowmanCloud is the essential pre-deployment platform for developers. Analyze your source code, automate infrastructure setup, get intelligent cloud recommendations, and estimate costs—all from a secure, local-first desktop application.
+            CrowmanCloud scans your project, finds issues, generates deployment configs, and gives accurate cloud cost estimations.
           </motion.p>
 
           <motion.div
@@ -63,7 +63,7 @@ export default function Hero() {
             className="mt-10 flex items-center justify-center gap-3"
           >
             {!isAuthenticated && (
-              <Link href="#" className="rounded-md bg-brand-500 hover:bg-brand-400 px-5 py-3 font-medium text-white transition">Get started</Link>
+              <Link href="/signup" className="rounded-md bg-brand-500 hover:bg-brand-400 px-5 py-3 font-medium text-white transition">Analyze Your Project Now →</Link>
             )}
             <Link href="#features" className="rounded-md bg-white/10 hover:bg-white/20 px-5 py-3 font-medium transition">Explore features</Link>
             {isAuthenticated && (

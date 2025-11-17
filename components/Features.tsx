@@ -6,8 +6,8 @@ const items = [
   {
     icon: Sparkles,
     key: 'readiness',
-    title: 'Readiness Analysis',
-    desc: "Deep static checks for cloud readiness: detect misconfigured environments, secret leaks, insecure dependencies, missing health checks, and production config gaps—before they reach CI/CD.",
+    title: 'Cloud-Readiness Analysis',
+    desc: "Automatically review your codebase for deployment issues, missing dependencies, insecure configs, and architecture gaps. Our cloud deployment tool identifies problems before they reach production.",
     bullets: [
       'Detect missing env vars and unsafe defaults',
       'Find hardcoded secrets and vulnerable packages',
@@ -17,8 +17,8 @@ const items = [
   {
     icon: Settings,
     key: 'automation',
-    title: 'Infrastructure Automation',
-    desc: "Auto-generate Dockerfiles, Compose, CI pipelines, and IaC stubs. We infer ports, start commands, build args, and optimize layers for fast, reproducible builds.",
+    title: 'Auto-Generated Deployment Files',
+    desc: "Get Dockerfiles, CI/CD pipelines, Kubernetes manifests, and infrastructure templates instantly. Our automated DevOps platform generates production-ready configs tailored to your stack.",
     bullets: [
       'One‑click Dockerfile with multi‑stage builds',
       'GitHub Actions/CI templates with cache hints',
@@ -28,8 +28,8 @@ const items = [
   {
     icon: Brain,
     key: 'intelligence',
-    title: 'Cloud Intelligence',
-    desc: "Framework-aware recommendations across AWS, GCP, and Azure with pros/cons, default SKUs, managed equivalents, and migration notes tailored to your stack.",
+    title: 'Architecture Suggestions',
+    desc: "Receive optimized cloud architecture tailored to your project — microservices, monoliths, serverless, or hybrid. Framework-aware recommendations across AWS, GCP, and Azure.",
     bullets: [
       'Service mapping to managed equivalents',
       'Regional guidance and defaults per provider',
@@ -39,8 +39,8 @@ const items = [
   {
     icon: Calculator,
     key: 'cost',
-    title: 'Cost Estimation',
-    desc: "Interactive estimates per region and SKU with breakdowns for compute, storage, and bandwidth. Tweak sizes to see real-time cost deltas and monthly totals.",
+    title: 'Real Cloud Cost Estimation',
+    desc: "Accurate AWS, GCP, and Azure cost predictions for compute, storage, bandwidth, and API usage. Get precise cost estimation for AWS GCP Azure deployments with real-time pricing.",
     bullets: [
       'What‑if analysis for instance sizes',
       'Per‑service monthly totals & trends',
@@ -72,8 +72,8 @@ const items = [
   {
     icon: Shield,
     key: 'security',
-    title: 'Security Guardrails',
-    desc: 'Built‑in checks for common misconfigurations with guidance to remediate quickly.',
+    title: 'Local-First Security',
+    desc: 'Your code stays on your machine. No upload required. Built‑in checks for common misconfigurations with guidance to remediate quickly.',
     bullets: [
       'OWASP‑aligned linting for configs',
       'Dependency advisories surfaced early',
@@ -103,8 +103,8 @@ export default function Features({ compact = false, hideKeys = [] }: FeaturesPro
     <section id="features" className="py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-2xl text-center">
-          <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight">A Complete Pre-Deployment Toolkit</h2>
-          <p className="mt-3 text-neutral-300">CrowmanCloud gives you everything you need to bridge the gap between local development and a successful cloud deployment.</p>
+          <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight">Complete Cloud Deployment Toolkit</h2>
+          <p className="mt-3 text-neutral-300">CrowmanCloud gives you everything you need to deploy your code to the cloud 10x faster with automated analysis and intelligent recommendations.</p>
         </div>
         <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {items
